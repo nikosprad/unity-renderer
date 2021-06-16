@@ -107,6 +107,7 @@ public class LoadingFeedbackController : MonoBehaviour
         if (currentComponentsLoading > 0)
         {
             loadingComponentsPercentage = GetLoadingComponentsPercentage(currentComponentsLoading);
+            DataStore.i.HUDs.loadingHUDPercentage.Set(loadingComponentsPercentage);
             messageToSend.loadPercentage = loadingComponentsPercentage;
             loadingText = string.Format("Loading scenes {0}%", loadingComponentsPercentage);
         }
@@ -127,6 +128,7 @@ public class LoadingFeedbackController : MonoBehaviour
 
         if (!string.IsNullOrEmpty(loadingText))
         {
+            DataStore.i.HUDs.loadingHUDMessage.Set(loadingText);
             messageToSend.message = loadingText;
             WebInterface.ScenesLoadingFeedback(messageToSend);
         }

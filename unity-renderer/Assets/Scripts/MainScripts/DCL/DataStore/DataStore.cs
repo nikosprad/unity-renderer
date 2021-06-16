@@ -45,6 +45,10 @@ namespace DCL
         {
             public readonly BaseVariable<bool> questsPanelVisible = new BaseVariable<bool>(false);
             public readonly BaseVariable<bool> builderProjectsPanelVisible = new BaseVariable<bool>(false);
+
+            public readonly BaseVariable<bool> loadingHUDVisible = new BaseVariable<bool>(false);
+            public readonly BaseVariable<string> loadingHUDMessage = new BaseVariable<string>(null);
+            public readonly BaseVariable<float> loadingHUDPercentage = new BaseVariable<float>(0);
         }
 
         public class DataStore_Player
