@@ -470,6 +470,7 @@ namespace DCL
                             case "UpdateQuestProgress":
                             case "SetENSOwnerQueryResult":
                             case "UnpublishSceneResult":
+                            case "SetLoadingScreen":
                                 bridgesGameObject.SendMessage(msg.type, msg.payload);
                                 break;
                             case "CrashPayloadRequest":

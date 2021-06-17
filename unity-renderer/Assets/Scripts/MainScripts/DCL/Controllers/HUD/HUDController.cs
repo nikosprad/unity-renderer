@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DCL;
 using DCL.HelpAndSupportHUD;
 using DCL.Huds.QuestsPanel;
@@ -6,6 +7,7 @@ using DCL.Huds.QuestsTracker;
 using DCL.QuestsController;
 using DCL.SettingsPanelHUD;
 using System.Collections.Generic;
+using LoadingHUD;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -93,6 +95,7 @@ public class HUDController : MonoBehaviour
     public QuestsPanelHUDController questsPanelHUD => GetHUDElement(HUDElementID.QUESTS_PANEL) as QuestsPanelHUDController;
     public QuestsTrackerHUDController questsTrackerHUD => GetHUDElement(HUDElementID.QUESTS_TRACKER) as QuestsTrackerHUDController;
     public BuilderProjectsPanelController builderProjectsPanelController => GetHUDElement(HUDElementID.BUILDER_PROJECTS_PANEL) as BuilderProjectsPanelController;
+    public LoadingHUDController loadingHUDController => GetHUDElement(HUDElementID.LOADING_HUD) as LoadingHUDController;
 
     public Dictionary<HUDElementID, IHUD> hudElements { get; private set; } = new Dictionary<HUDElementID, IHUD>();
 
@@ -165,7 +168,8 @@ public class HUDController : MonoBehaviour
         QUESTS_PANEL = 26,
         QUESTS_TRACKER = 27,
         BUILDER_PROJECTS_PANEL = 28,
-        COUNT = 29
+        LOADING_HUD = 29,
+        COUNT = 30
     }
 
     [System.Serializable]
@@ -412,6 +416,14 @@ public class HUDController : MonoBehaviour
                 }
 
                 break;
+            case HUDElementID.LOADING_HUD:
+                CreateHudElement<LoadingHUDController>(configuration, hudElementId);
+                if (configuration.active)
+                {
+                    loadingHUDController.Initialize();
+                }
+
+                break;
         }
 
         var hudElement = GetHUDElement(hudElementId);
@@ -561,4 +573,100 @@ public class HUDController : MonoBehaviour
         Resources.Load<StringVariable>("CurrentPlayerInfoCardId").Set(newModel.userId);
     }
 #endif
+}
+
+public class Actor { }
+
+public class AuronSpecialAttack_Controller
+{
+    private AuronSpecialAttack_View view;
+    private Action onDone;
+    private Actor owner;
+    private Actor target;
+
+    private List<KeyCode> sequence;
+    private int currentSequenceIndex = -1;
+
+    public void Initialize(Action onDone, Actor owner, Actor target)
+    {
+        this.onDone = onDone;
+        this.owner = owner;
+        this.target = target;
+        currentSequenceIndex = -1;
+
+        view = Resources.Load<GameObject>("MyPath/AuronSpecialAttackView").GetComponent<AuronSpecialAttack_View>();
+        sequence = PrepareSequence();
+        view.StartAttack(ViewReady);
+    }
+
+    private List<KeyCode> PrepareSequence()
+    {
+        // Aqui preparas la lista con las teclas a presionar
+        return new List<KeyCode>();
+    }
+
+    private void ViewReady() { NextSequenceStep(); }
+
+    private void NextSequenceStep()
+    {
+        currentSequenceIndex++;
+        if (sequence.Count >= currentSequenceIndex)
+        {
+            view.FinishAttack(ViewFinished);
+            return;
+        }
+
+        view.SequenceStep(sequence[currentSequenceIndex], Attack);
+    }
+
+    private void Attack(bool succeded)
+    {
+        //Owner ataca a target, if(succeded) se le aplica un multiplicador de daño
+    }
+
+    private void ViewFinished() { onDone?.Invoke(); }
+}
+
+public class AuronSpecialAttack_View : MonoBehaviour
+{
+    public void Awake()
+    {
+        //Preparar lo necesario para el view, buscar referencias, etc...
+    }
+
+    public void StartAttack(Action onReady)
+    {
+        //Lanzas las corrutinas, haces una animacion de entrada o lo que sea.
+    }
+
+    public void SequenceStep(KeyCode keyCode, Action<bool> done) { StartCoroutine(WaitForInput(keyCode, done)); }
+
+    IEnumerator WaitForInput(KeyCode keyCode, Action<bool> done)
+    {
+        const float MAX_TIME_PER_INPUT = 1.5f;
+        float currentTime = 0;
+        while (currentTime < MAX_TIME_PER_INPUT)
+        {
+            currentTime += Time.deltaTime;
+            if (Input.GetKeyDown(keyCode))
+            {
+                done.Invoke(true);
+                break;
+            }
+
+            if (Input.anyKeyDown)
+            {
+                done.Invoke(false);
+                break;
+            }
+            yield return null;
+        }
+        done.Invoke(false);
+    }
+
+    public void FinishAttack(Action onDone)
+    {
+        //Animaciones, efectos y cosas de salida del UI;
+        onDone?.Invoke();
+    }
 }
