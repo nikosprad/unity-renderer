@@ -118,6 +118,7 @@ namespace WebSocketSharp.Server
     /// <c>true</c> if the service cleans up the inactive sessions every
     /// 60 seconds; otherwise, <c>false</c>.
     /// </value>
+    /// This is Nik saying hi
     public bool KeepClean {
       get {
         return _sessions.KeepClean;
